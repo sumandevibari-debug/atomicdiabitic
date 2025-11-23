@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AtomicDiabetic - 6 Month Remission Protocol</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --dark-bg: #2c3e50;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container-main {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 1200px;
+        }
+        
+        .phase-progress {
+            background: var(--dark-bg);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        /* Progress Circle */
+        .progress-circle-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+        }
+        
+        .progress-circle {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-circle-bg {
+            fill: none;
+            stroke: #e0e0e0;
+            stroke-width: 10;
+        }
+        
+        .progress-circle-fill {
+            fill: none;
+            stroke: var(--primary-color);
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        .progress-circle-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--dark-bg);
+        }
+        
+        .progress-circle-label {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        /* Habit Items */
+        .habit-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 5px solid #ddd;
+            transition: all 0.3s ease;
+        }
+        
+        .habit-item.completed {
+            border-left-color: var(--primary-color);
+            background: #d4edda;
+        }
+        
+        .habit-item input[type="checkbox"] {
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+        }
+        
+        .habit-time {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .habit-time.morning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .habit-time.evening {
+            background: #cfe2ff;
+            color: #084298;
+        }
+        
+        .habit-time.all-day {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .whats-left-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 3px dashed #d63031;
+        }
+        
+        .whats-left-box h5 {
+            color: #d63031;
+            font-weight: bold;
+        }
+        
+        .whats-left-box ul {
+            margin: 10px 0 0 0;
+            padding-left: 20px;
+        }
+        
+        .whats-left-box li {
+            color: #2d3436;
+            font-weight: 500;
+        }
+        
+        /* Calendar */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .calendar-day.success {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .calendar-day.partial {
+            background: var(--warning-color);
+            color: white;
+            border-color: var(--warning-color);
+        }
+        
+        .calendar-day.missed {
+            background: var(--danger-color);
+            color: white;
+            border-color: var(--danger-color);
+        }
+        
+        .calendar-day.today {
+            border: 3px solid #3498db;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+        }
+        
+        .coach-message {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .streak-badge {
+            background: var(--warning-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            display: inline-block;
+            font-weight: bold;
+        }
+        
+        .phase-label {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
+        .phase-label.phase-1 { background: #3498db; color: white; }
+        .phase-label.phase-2 { background: #e74c3c; color: white; }
+        .phase-label.phase-3 { background: #f39c12; color: white; }
+        .phase-label.phase-4 { background: #2ecc71; color: white; }
+        
+        /* WORKOUT VIDEO CARDS */
+        .video-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .video-card iframe {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+            background: #000;
+        }
+        
+        .video-card h6 {
+            margin-top: 10px;
+            color: var(--dark-bg);
+            font-weight: bold;
+        }
+        
+        .video-card .badge {
+            font-size: 0.75rem;
+            margin-right: 5px;
+        }
+
+        .video-card p {
+            flex-grow: 1;
+        }
+
+        .btn-youtube {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: auto; /* Pushes button to bottom */
+        }
+        .btn-youtube:hover {
+            background-color: #cc0000;
+            color: white;
+        }
+        
+        .workout-category {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 30px 0 15px 0;
+        }
+        
+        /* DIET SYSTEM */
+        .food-card {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .food-card.allowed {
+            border-color: var(--primary-color);
+            background: #d4edda;
+        }
+        
+        .food-card.forbidden {
+            border-color: var(--danger-color);
+            background: #f8d7da;
+        }
+        
+        .food-card.moderate {
+            border-color: var(--warning-color);
+            background: #fff3cd;
+        }
+        
+        .meal-plan-card {
+            background: white;
+            border-left: 5px solid var(--primary-color);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .recipe-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .recipe-card h5 {
+            color: var(--dark-bg);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        
+        .calorie-badge {
+            background: #3498db;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .container-main { padding: 15px; }
+            .calendar-grid { gap: 5px; }
+            .coach-message { font-size: 1rem; padding: 15px; }
+            .progress-circle-container { width: 120px; height: 120px; }
+            .video-card iframe { height: 180px; }
+            .col-md-6 { margin-bottom: 20px; }
+        }
+        
+        @media print {
+            body { background: white; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-main">
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <h1>💪 AtomicDiabetic</h1>
+        <p class="text-muted">Your 6-Month Diabetes Reversal Journey</p>
+    </div>
+    
+    <!-- Phase Progress Bar -->
+    <div class="phase-progress">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span id="currentPhase">Phase 1: The Safety Audit</span>
+            <span id="dayCounter">Day 1 of 180</span>
+        </div>
+        <div class="progress" style="height: 25px;">
+            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                 role="progressbar" style="width: 0%"></div>
+        </div>
+    </div>
+    
+    <!-- Progress Circle -->
+    <div class="text-center">
+        <div class="progress-circle-container">
+            <svg width="150" height="150" class="progress-circle">
+                <circle class="progress-circle-bg" cx="75" cy="75" r="65"></circle>
+                <circle id="progressCircleFill" class="progress-circle-fill" cx="75" cy="75" r="65"
+                        stroke-dasharray="408.41" stroke-dashoffset="408.41"></circle>
+            </svg>
+            <div class="progress-circle-text" id="progressCircleText">0/4</div>
+            <div class="progress-circle-label">Today's Habits</div>
+        </div>
+    </div>
+    
+    <!-- Coach Message -->
+    <div class="coach-message text-center" id="coachMessage">
+        🎯 Welcome! Let's start your transformation journey today.
+    </div>
+    
+    <!-- Current Streak -->
+    <div class="text-center mb-4">
+        <div class="streak-badge">
+            🔥 <span id="currentStreak">0</span> Day Streak
+        </div>
+    </div>
+    
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="today-tab" data-bs-toggle="tab" 
+                    data-bs-target="#today" type="button">📋 Today</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="workouts-tab" data-bs-toggle="tab" 
+                    data-bs-target="#workouts" type="button">💪 Workouts</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="diet-tab" data-bs-toggle="tab" 
+                    data-bs-target="#diet" type="button">🥗 Diet Guide</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="calendar-tab" data-bs-toggle="tab" 
+                    data-bs-target="#calendar" type="button">📅 Calendar</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" 
+                    data-bs-target="#analytics" type="button">📈 Analytics</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" 
+                    data-bs-target="#settings" type="button">⚙️ Settings</button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="mainTabContent">
+        
+        <!-- TODAY'S LOG TAB -->
+        <div class="tab-pane fade show active" id="today" role="tabpanel">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>📋 Today's Habits <span id="currentPhaseLabel" class="phase-label phase-1">Phase 1</span></h4>
+                    
+                    <div id="habitsContainer"></div>
+                    
+                    <div id="whatsLeftBox" class="whats-left-box" style="display:none;">
+                        <h5>⏰ Still Remaining Today:</h5>
+                        <ul id="remainingHabitsList"></ul>
+                    </div>
+                    
+                    <div id="successBox" class="alert alert-success" style="display:none;">
+                        <h5>🎉 Perfect Day!</h5>
+                        <p>All habits completed. You're building an unstoppable identity!</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h4>📊 Today's Biometrics</h4>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Fasting Blood Sugar (mg/dL)</label>
+                        <input type="number" class="form-control" id="fastingSugar" 
+                               placeholder="e.g., 140" min="40" max="600">
+                        <small class="text-muted">Take before breakfast</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Post-Meal Sugar (mg/dL)</label>
+                        <input type="number" class="form-control" id="postMealSugar" 
+                               placeholder="e.g., 180" min="40" max="600">
+                        <small class="text-muted">2 hours after lunch/dinner</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" class="form-control" id="weight" 
+                               placeholder="e.g., 85" step="0.1">
+                        <small class="text-muted">Weigh in the morning</small>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-lg w-100" onclick="saveTodayLog()">
+                        💾 Save Today's Data
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- WORKOUTS TAB (UPDATED WITH EXACT LINKS) -->
+        <div class="tab-pane fade" id="workouts" role="tabpanel">
+            <h3 class="mb-4">💪 Workout Video Library</h3>
+            
+            <!-- Pranayam Section -->
+            <div class="workout-category">
+                <h4>🧘 Pranayam & Morning Routine</h4>
+                <p class="small text-white">The Foundation: Reducing Stress & Activation</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 col-lg-4">
+                    <div class="video-card">
+                        <!-- Link 7 -->
+                        <iframe src="https://www.youtube.com/embed/YrIqX5FkctA" title="Anulom Vilom" allowfullscreen></iframe>
+                        <h6>Anulom Vilom Pranayam</h6>
+                        <div><span class="badge bg-success">Morning</span><span class="badge bg-info">Stress</span></div>
+                        <p class="small mt-2">Balances the nervous system.</p>
+                        <a href="https://youtu.be/YrIqX5FkctA?si=ViktvvzlQvfVKFgg" target="_blank" class="btn btn-sm btn-youtube w-100">▶ Watch on YouTube</a>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="video-card">
+                        <!-- Link 6 -->
+                        <iframe src="https://www.youtube.com/embed/Z2sl3ssbnUQ" title="Kapalbhati" allowfullscreen></iframe>
+                        <h6>Kapalbhati Pranayam</h6>
+                        <div><span class="badge bg-warning">Empty Stomach</span><span class="badge bg-danger">Pancreas</span></div>
+                        <p class="small mt-2">Stimulates abdominal organs.</p>
+                        <a href="https://youtu.be/Z2sl3ssbnUQ?si=791OTdDiCqOtZGTj" target="_blank" class="btn btn-sm btn-youtube w-100">▶ Watch on YouTube</a>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="video-card">
+                        <!-- Link 4 -->
+                        <iframe src="https://www.youtube.com/embed/-MSXa8DpwlQ" title="Mandukasana" allowfullscreen></iframe>
+                        <h6>Mandukasana (Frog Pose)</h6>
+                        <div><span class="badge bg-danger">Diabetes V.IMP</span></div>
+                        <p class="small mt-2">Compresses pancreas for insulin release.</p>
+                        <a href="https://youtu.be/-MSXa8DpwlQ?si=nEiyxCBPl2SN6WXI" target="_blank" class="btn btn-sm btn-youtube w-100">▶ Watch on YouTube</a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="video-card">
+                        <!-- Link 5 -->
+                        <iframe src="https://www.youtube.com/embed/XmJjdSsVyB0" title="Surya Namaskar" allowfullscreen></iframe>
+                        <h6>Surya Namaskar (Step by Step)</h6>
+                        <div><span class="badge bg-success">Full Body</span></div>
+                        <p class="small mt-2">Complete body activation.</p>
+                        <a href="https://youtu.be/XmJjdSsVyB0?si=_Rh7im1om5p90vtE" target="_blank" class="btn btn-sm btn-youtube w-100">▶ Watch on YouTube</a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="video-card">
+                        <!-- Link 1 -->
+                        <iframe src="https://www.youtube.com/embed/AzV3EA-1-yM" title="Yoga for Diabetes" allowfullscreen></iframe>
+                        <h6>Integrated Yoga for Diabetes</h6>
+                        <div><span class="badge bg-primary">Adriene</span></div>
+                        <p class="small mt-2">Gentle yoga specifically for blood sugar.</p>
+                        <a href="https://youtu.be/AzV3EA-1-yM?si=VrCR9hD4gBtlD_Np" target="_blank" class="btn btn-sm btn-youtube w-100">▶ Watch on YouTube</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Walking & Cardio -->
+            <div class="workout-category">
+                <h4>🚶 Walking & Cardio</h4>
+                <p class="small text-white">Burn Glucose After Meals</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="video-card">
+                        <!-- Link 2 -->
+                        <iframe src="https://www.youtube.com/embed/kj6F7H68PW4" title="15 Min Walk" allowfullscreen></iframe>
+                        <h6>15 Minute Walk at Home</h6>
+                        <div><span class="badge bg-success">Indoor</span><span class="badge bg-primary">Post-Dinner</span></div>
+                        <p class="small mt-2">Perfect for when you can't go outside.</p>
+                        <a href="https://youtu.be/kj6F7H68PW4?si=CHNJcIBKSEbVxy_U" target="_blank" class="btn btn-sm btn-youtube w-100">▶ Watch on YouTube</a>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="video-card">
+                        <!-- Link 3 -->
+                        <iframe src="https://www.youtube.com/embed/X_optaWaxks" title="Exercise for Diabetes" allowfullscreen></iframe>
+                        <h6>Home Exercise for Diabetes</h6>
+                        <div><span class="badge bg-warning">Intermediate</span></div>
+                        <p class="small mt-2">Specific movements to target high blood sugar.</p>
+                        <a href="https://youtu.be/X_optaWaxks?si=kNB7Rqh9lbhtKIl5" target="_blank" class="btn btn-sm btn-youtube w-100">▶ Watch on YouTube</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Strength Section -->
+            <div class="workout-category">
+                <h4>💪 Strength (Muscle Building)</h4>
+                <p class="small text-white">Building the "Chair Squat" Habit</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="video-card">
+                        <!-- Link 8 -->
+                        <iframe src="https://www.youtube.com/embed/MqeeqXMdZ54" title="Squats" allowfullscreen></iframe>
+                        <h6>How to do Squats (Beginners)</h6>
+                        <div><span class="badge bg-info">Technique</span><span class="badge bg-danger">Legs</span></div>
+                        <p class="small mt-2">Correct form for your hourly chair squats.</p>
+                        <a href="https://youtu.be/MqeeqXMdZ54?si=ZCnM6U8XbNXu2cDd" target="_blank" class="btn btn-sm btn-youtube w-100">▶ Watch on YouTube</a>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="video-card">
+                        <!-- Link 9 -->
+                        <iframe src="https://www.youtube.com/embed/H7g1BMalpdw" title="Wall Pushups" allowfullscreen></iframe>
+                        <h6>Wall Push Ups (Beginners)</h6>
+                        <div><span class="badge bg-success">Upper Body</span></div>
+                        <p class="small mt-2">Safe strength training using a wall.</p>
+                        <a href="https://youtu.be/H7g1BMalpdw?si=2XrQHj5HKxRWFJyr" target="_blank" class="btn btn-sm btn-youtube w-100">▶ Watch on YouTube</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Knowledge Section -->
+            <div class="workout-category">
+                <h4>🧠 The Knowledge (Why?)</h4>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="video-card">
+                        <!-- Link 10 -->
+                        <iframe src="https://www.youtube.com/embed/AtG7cx6p7DY" title="Reverse Diabetes" allowfullscreen></iframe>
+                        <h6>Reverse Type 2 Diabetes Naturally</h6>
+                        <div><span class="badge bg-dark">Dr. Jason Fung</span></div>
+                        <p class="small mt-2">The science of fasting and insulin resistance.</p>
+                        <a href="https://youtu.be/AtG7cx6p7DY?si=nS2eMDI6QMrTgTKG" target="_blank" class="btn btn-sm btn-youtube w-100">▶ Watch on YouTube</a>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="video-card">
+                        <!-- Link 11 -->
+                        <iframe src="https://www.youtube.com/embed/9-YJRGm_bpI" title="Vegetarian Diet" allowfullscreen></iframe>
+                        <h6>Vegetarian Diet & Diabetes</h6>
+                        <div><span class="badge bg-dark">Dr. Pradip Jamnadas</span></div>
+                        <p class="small mt-2">Crucial info for Indian Vegetarians.</p>
+                        <a href="https://youtu.be/9-YJRGm_bpI?si=m7X8dZ3n08WE6cXy" target="_blank" class="btn btn-sm btn-youtube w-100">▶ Watch on YouTube</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- DIET GUIDE TAB -->
+        <div class="tab-pane fade" id="diet" role="tabpanel">
+            <h3 class="mb-4">🥗 Complete Diet System</h3>
+            
+            <!-- Quick Links -->
+            <div class="btn-group mb-4" role="group">
+                <button class="btn btn-outline-primary" onclick="showDietSection('meal-plans')">
+                    📋 Meal Plans
+                </button>
+                <button class="btn btn-outline-success" onclick="showDietSection('food-lists')">
+                    ✅ Food Lists
+                </button>
+                <button class="btn btn-outline-warning" onclick="showDietSection('recipes')">
+                    🍳 Recipes
+                </button>
+                <button class="btn btn-outline-info" onclick="showDietSection('calorie-calc')">
+                    🔢 Calorie Calculator
+                </button>
+            </div>
+            
+            <!-- MEAL PLANS SECTION -->
+            <div id="meal-plans" class="diet-section">
+                <h4 class="mb-3">📋 Phase-Specific Meal Plans</h4>
+                
+                <!-- Phase 1 Meal Plan -->
+                <div class="meal-plan-card">
+                    <h5>Phase 1: Safety Audit (Weeks 1-2) - 1200-1500 kcal</h5>
+                    <p class="text-muted">Goal: Remove white poisons, stabilize blood sugar</p>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6>🌅 Breakfast (300 kcal)</h6>
+                            <ul>
+                                <li>2 boiled eggs + 1 cup green tea</li>
+                                <li><em>OR</em> Moong dal cheela (2) + mint chutney</li>
+                                <li><em>OR</em> Greek yogurt (200g) + 10 almonds</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🌞 Mid-Morning (100 kcal)</h6>
+                            <ul>
+                                <li>1 apple/guava</li>
+                                <li><em>OR</em> Buttermilk (1 glass)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🍛 Lunch (400 kcal)</h6>
+                            <ul>
+                                <li>1 roti (whole wheat) + dal (1 bowl)</li>
+                                <li>Salad (unlimited)</li>
+                                <li>Sabzi (no potato)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>☕ Evening (150 kcal)</h6>
+                            <ul>
+                                <li>Roasted chana (50g)</li>
+                                <li><em>OR</em> Carrot sticks + hummus</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🌙 Dinner (350 kcal)</h6>
+                            <ul>
+                                <li>Grilled chicken/paneer (100g)</li>
+                                <li>Salad bowl (large)</li>
+                                <li>Clear soup (1 bowl)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Phase 2 Meal Plan -->
+                <div class="meal-plan-card" style="border-left-color: #e74c3c;">
+                    <h5>Phase 2: VLCD Reset (Weeks 3-12) - 800-1000 kcal</h5>
+                    <p class="text-muted"><strong>⚠️ Consult doctor before starting</strong></p>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6>🌅 Breakfast (200 kcal)</h6>
+                            <ul>
+                                <li>Protein shake (whey/pea protein)</li>
+                                <li>1 tbsp flaxseeds</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🍛 Lunch (300 kcal)</h6>
+                            <ul>
+                                <li>200g non-starchy vegetables</li>
+                                <li>100g lean protein (fish/chicken/tofu)</li>
+                                <li>No grains/rice/roti</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>☕ Snack (100 kcal)</h6>
+                            <ul>
+                                <li>Cucumber + tomato salad</li>
+                                <li>Green tea</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🌙 Dinner (300 kcal)</h6>
+                            <ul>
+                                <li>Vegetable soup (thick)</li>
+                                <li>Grilled fish/paneer (150g)</li>
+                                <li>Steamed broccoli/cauliflower</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-danger mt-3">
+                        <strong>VLCD Rules:</strong>
+                        <ul>
+                            <li>Take multivitamin daily</li>
+                            <li>Drink 3-4 liters water</li>
+                            <li>Monitor blood sugar 3x/day</li>
+                            <li>Check with doctor weekly</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Phase 3 Meal Plan -->
+                <div class="meal-plan-card" style="border-left-color: #f39c12;">
+                    <h5>Phase 3: The Build (Weeks 13-20) - 1400-1600 kcal</h5>
+                    <p class="text-muted">Goal: Reintroduce foods, build muscle, high protein</p>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6>🌅 Breakfast (350 kcal)</h6>
+                            <ul>
+                                <li>3 egg whites + 1 whole egg omelette</li>
+                                <li>1 slice whole grain bread</li>
+                                <li>Avocado (¼)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🌞 Mid-Morning (150 kcal)</h6>
+                            <ul>
+                                <li>Protein bar (homemade)</li>
+                                <li><em>OR</em> Greek yogurt + berries</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🍛 Lunch (450 kcal)</h6>
+                            <ul>
+                                <li>Brown rice (½ cup cooked)</li>
+                                <li>Rajma/chicken curry (1 bowl)</li>
+                                <li>Salad + raita</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>💪 Post-Workout (150 kcal)</h6>
+                            <ul>
+                                <li>Whey protein shake</li>
+                                <li>1 banana</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🌙 Dinner (400 kcal)</h6>
+                            <ul>
+                                <li>Grilled fish/chicken (150g)</li>
+                                <li>Quinoa/daliya (1 bowl)</li>
+                                <li>Mixed vegetables</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Protein Target:</strong> Aim for 100-120g protein daily
+                    </div>
+                </div>
+                
+                <!-- Phase 4 Meal Plan -->
+                <div class="meal-plan-card" style="border-left-color: #2ecc71;">
+                    <h5>Phase 4: Maintenance (Week 21+) - 1600-1800 kcal</h5>
+                    <p class="text-muted">Goal: Sustainable eating for life</p>
+                    
+                    <div class="alert alert-success">
+                        <strong>80/20 Rule:</strong> Eat clean 80% of the time. Enjoy treats 20% of the time (but never white sugar/rice/maida).
+                    </div>
+                    
+                    <p>Continue Phase 3 meal structure with:</p>
+                    <ul>
+                        <li>Slightly larger portions</li>
+                        <li>One cheat meal per week (healthy version - e.g., cauliflower pizza)</li>
+                        <li>Focus on whole foods, avoid processed items</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- FOOD LISTS SECTION -->
+            <div id="food-lists" class="diet-section" style="display:none;">
+                <h4 class="mb-3">✅ Food Lists: What to Eat & What to Avoid</h4>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="food-card allowed">
+                            <h5>✅ ALLOWED FOODS (Eat Freely)</h5>
+                            
+                            <h6>Proteins:</h6>
+                            <ul>
+                                <li>Eggs (whole/whites)</li>
+                                <li>Chicken breast, Fish (all types)</li>
+                                <li>Paneer, Tofu, Tempeh</li>
+                                <li>Dal (moong, masoor, chana)</li>
+                                <li>Greek yogurt (plain)</li>
+                            </ul>
+                            
+                            <h6>Vegetables:</h6>
+                            <ul>
+                                <li>All leafy greens (spinach, methi, palak)</li>
+                                <li>Broccoli, cauliflower, cabbage</li>
+                                <li>Cucumber, tomato, capsicum</li>
+                                <li>Zucchini, eggplant, okra (bhindi)</li>
+                                <li>Mushrooms, asparagus</li>
+                            </ul>
+                            
+                            <h6>Healthy Fats:</h6>
+                            <ul>
+                                <li>Almonds, walnuts (10-15 per day)</li>
+                                <li>Flaxseeds, chia seeds</li>
+                                <li>Olive oil, coconut oil (1-2 tbsp)</li>
+                                <li>Avocado (¼-½ per day)</li>
+                            </ul>
+                            
+                            <h6>Low-GI Fruits:</h6>
+                            <ul>
+                                <li>Berries (strawberry, blueberry)</li>
+                                <li>Apple, Guava, Papaya (small portions)</li>
+                                <li>Kiwi, Orange</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="food-card forbidden">
+                            <h5>🚫 FORBIDDEN FOODS (Never Touch)</h5>
+                            
+                            <h6>The White Poisons:</h6>
+                            <ul>
+                                <li><strong>White Rice</strong> (all types)</li>
+                                <li><strong>Sugar</strong> (all forms)</li>
+                                <li><strong>Maida</strong> (wheat flour/all-purpose flour)</li>
+                                <li>White bread, naan, kulcha</li>
+                            </ul>
+                            
+                            <h6>High-GI Carbs:</h6>
+                            <ul>
+                                <li>Potato, sweet potato</li>
+                                <li>Corn, popcorn</li>
+                                <li>Pasta, noodles</li>
+                            </ul>
+                            
+                            <h6>Sugary Items:</h6>
+                            <ul>
+                                <li>All sweets, desserts, mithai</li>
+                                <li>Soft drinks, packaged juices</li>
+                                <li>Biscuits, cookies, cakes</li>
+                                <li>Ice cream</li>
+                            </ul>
+                            
+                            <h6>Processed Foods:</h6>
+                            <ul>
+                                <li>Chips, namkeen</li>
+                                <li>Packaged snacks</li>
+                                <li>Fast food (pizza, burgers)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="food-card moderate mt-3">
+                            <h5>⚠️ MODERATE (Phase 3+ Only)</h5>
+                            <ul>
+                                <li>Brown rice (½ cup)</li>
+                                <li>Whole wheat roti (1-2)</li>
+                                <li>Quinoa, oats, daliya</li>
+                                <li>Sweet fruits (mango, grapes) - 1 serving</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Indian Diabetes Superfoods -->
+                <div class="alert alert-info mt-4">
+                    <h5>🌟 Indian Diabetes Superfoods</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul>
+                                <li><strong>Karela (Bitter Gourd):</strong> Natural insulin booster</li>
+                                <li><strong>Methi (Fenugreek):</strong> Lowers blood sugar</li>
+                                <li><strong>Jamun (Black Plum):</strong> Controls sugar spikes</li>
+                                <li><strong>Amla (Indian Gooseberry):</strong> Rich in Vitamin C</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul>
+                                <li><strong>Cinnamon (Dalchini):</strong> 1 tsp daily in tea</li>
+                                <li><strong>Turmeric (Haldi):</strong> Anti-inflammatory</li>
+                                <li><strong>Neem leaves:</strong> Traditional blood purifier</li>
+                                <li><strong>Tulsi (Holy Basil):</strong> Reduces stress hormones</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RECIPES SECTION -->
+            <div id="recipes" class="diet-section" style="display:none;">
+                <h4 class="mb-3">🍳 Quick Diabetic-Friendly Recipes</h4>
+                
+                <div class="recipe-card">
+                    <h5>Moong Dal Cheela (Protein Pancake)</h5>
+                    <span class="calorie-badge">200 kcal/serving</span>
+                    
+                    <h6 class="mt-3">Ingredients:</h6>
+                    <ul>
+                        <li>1 cup moong dal (soaked overnight)</li>
+                        <li>1 green chili, ginger (small piece)</li>
+                        <li>Salt, turmeric, cumin powder</li>
+                        <li>Chopped onion, tomato, coriander</li>
+                    </ul>
+                    
+                    <h6>Method:</h6>
+                    <ol>
+                        <li>Grind soaked dal with green chili and ginger to a smooth batter</li>
+                        <li>Add salt, spices, and chopped vegetables</li>
+                        <li>Pour on hot tawa (non-stick), cook both sides</li>
+                        <li>Serve with mint chutney</li>
+                    </ol>
+                </div>
+                
+                <div class="recipe-card">
+                    <h5>Cauliflower Rice Pulao</h5>
+                    <span class="calorie-badge">150 kcal/serving</span>
+                    
+                    <h6 class="mt-3">Ingredients:</h6>
+                    <ul>
+                        <li>1 medium cauliflower (grated/processed)</li>
+                        <li>1 tsp ghee</li>
+                        <li>Cumin, mustard seeds, curry leaves</li>
+                        <li>Mixed vegetables (peas, carrot, beans)</li>
+                        <li>Spices: turmeric, salt, garam masala</li>
+                    </ul>
+                    
+                    <h6>Method:</h6>
+                    <ol>
+                        <li>Grate cauliflower in food processor (rice-sized pieces)</li>
+                        <li>Heat ghee, add cumin, mustard seeds, curry leaves</li>
+                        <li>Add vegetables, sauté for 3 min</li>
+                        <li>Add cauliflower rice, spices, cook for 5 min</li>
+                        <li>Tastes like real pulao but zero carbs!</li>
+                    </ol>
+                </div>
+                
+                <div class="recipe-card">
+                    <h5>Paneer Tikka (Air-Fryer/Grilled)</h5>
+                    <span class="calorie-badge">250 kcal/serving</span>
+                    
+                    <h6 class="mt-3">Ingredients:</h6>
+                    <ul>
+                        <li>200g paneer cubes</li>
+                        <li>1 cup Greek yogurt</li>
+                        <li>1 tbsp ginger-garlic paste</li>
+                        <li>Spices: red chili, turmeric, garam masala, chaat masala</li>
+                        <li>Lemon juice, salt</li>
+                        <li>Capsicum, onion (cut in squares)</li>
+                    </ul>
+                    
+                    <h6>Method:</h6>
+                    <ol>
+                        <li>Mix yogurt with all spices and ginger-garlic paste</li>
+                        <li>Marinate paneer and vegetables for 30 min</li>
+                        <li>Skewer paneer and veggies</li>
+                        <li>Grill or air-fry at 180°C for 12 min</li>
+                        <li>Serve with mint chutney</li>
+                    </ol>
+                </div>
+                
+                <div class="recipe-card">
+                    <h5>Keto-Friendly Besan Chilla (Chickpea Flour Pancake)</h5>
+                    <span class="calorie-badge">180 kcal/serving</span>
+                    
+                    <h6 class="mt-3">Ingredients:</h6>
+                    <ul>
+                        <li>½ cup besan (chickpea flour)</li>
+                        <li>¼ cup water</li>
+                        <li>Chopped onion, tomato, green chili, coriander</li>
+                        <li>Salt, turmeric, red chili powder</li>
+                    </ul>
+                    
+                    <h6>Method:</h6>
+                    <ol>
+                        <li>Mix besan with water to make smooth batter</li>
+                        <li>Add all vegetables and spices</li>
+                        <li>Pour on hot tawa, spread thin</li>
+                        <li>Cook both sides until golden</li>
+                        <li>High protein, low carb breakfast</li>
+                    </ol>
+                </div>
+                
+                <div class="recipe-card">
+                    <h5>Sugar-Free Chia Pudding</h5>
+                    <span class="calorie-badge">120 kcal/serving</span>
+                    
+                    <h6 class="mt-3">Ingredients:</h6>
+                    <ul>
+                        <li>3 tbsp chia seeds</li>
+                        <li>1 cup unsweetened almond milk</li>
+                        <li>1 tsp vanilla extract</li>
+                        <li>Stevia (to taste)</li>
+                        <li>Berries for topping</li>
+                    </ul>
+                    
+                    <h6>Method:</h6>
+                    <ol>
+                        <li>Mix chia seeds with almond milk</li>
+                        <li>Add vanilla and stevia</li>
+                        <li>Refrigerate overnight</li>
+                        <li>Top with fresh berries in morning</li>
+                        <li>Perfect breakfast or dessert</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- CALORIE CALCULATOR SECTION -->
+            <div id="calorie-calc" class="diet-section" style="display:none;">
+                <h4 class="mb-3">🔢 Simple Calorie Calculator</h4>
+                
+                <div class="card p-4">
+                    <h5>Calculate Your Daily Calorie Needs</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Age</label>
+                            <input type="number" class="form-control" id="calcAge" placeholder="e.g., 55">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Gender</label>
+                            <select class="form-select" id="calcGender">
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Weight (kg)</label>
+                            <input type="number" class="form-control" id="calcWeight" placeholder="e.g., 85">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Height (cm)</label>
+                            <input type="number" class="form-control" id="calcHeight" placeholder="e.g., 170">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Activity Level</label>
+                            <select class="form-select" id="calcActivity">
+                                <option value="1.2">Sedentary (desk job, no exercise)</option>
+                                <option value="1.375">Lightly Active (light exercise 1-3 days/week)</option>
+                                <option value="1.55">Moderately Active (exercise 3-5 days/week)</option>
+                                <option value="1.725">Very Active (hard exercise 6-7 days/week)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="calculateCalories()">Calculate</button>
+                    
+                    <div id="calorieResult" class="mt-4" style="display:none;">
+                        <div class="alert alert-success">
+                            <h5>Your Results:</h5>
+                            <p><strong>Maintenance Calories:</strong> <span id="maintenanceCal"></span> kcal/day</p>
+                            <p><strong>For Weight Loss:</strong> <span id="weightLossCal"></span> kcal/day</p>
+                            <p><strong>For Diabetes Reversal (VLCD):</strong> 800-1000 kcal/day (under doctor supervision)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Food Calorie Reference -->
+                <div class="mt-4">
+                    <h5>📊 Quick Food Calorie Reference (Indian Foods)</h5>
+                    
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Food Item</th>
+                                <th>Serving</th>
+                                <th>Calories</th>
+                                <th>Protein (g)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Whole Wheat Roti</td>
+                                <td>1 medium</td>
+                                <td>70</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>White Rice (cooked)</td>
+                                <td>1 cup</td>
+                                <td>200</td>
+                                <td>4</td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>Brown Rice (cooked)</td>
+                                <td>1 cup</td>
+                                <td>215</td>
+                                <td>5</td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>Moong Dal (cooked)</td>
+                                <td>1 cup</td>
+                                <td>200</td>
+                                <td>14</td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>Boiled Egg</td>
+                                <td>1 large</td>
+                                <td>70</td>
+                                <td>6</td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>Chicken Breast (grilled)</td>
+                                <td>100g</td>
+                                <td>165</td>
+                                <td>31</td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>Paneer</td>
+                                <td>100g</td>
+                                <td>265</td>
+                                <td>18</td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>Greek Yogurt (plain)</td>
+                                <td>1 cup</td>
+                                <td>100</td>
+                                <td>17</td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>Almonds</td>
+                                <td>10 nuts</td>
+                                <td>70</td>
+                                <td>2.5</td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td>Samosa</td>
+                                <td>1 piece</td>
+                                <td>250</td>
+                                <td>5</td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td>Gulab Jamun</td>
+                                <td>1 piece</td>
+                                <td>150</td>
+                                <td>2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CALENDAR TAB -->
+        <div class="tab-pane fade" id="calendar" role="tabpanel">
+            <h4 class="mb-3">📅 Monthly Habit Calendar (Seinfeld Chain)</h4>
+            <div class="text-center mb-3">
+                <button class="btn btn-outline-primary" onclick="changeMonth(-1)">← Previous</button>
+                <span class="mx-3 fs-5" id="calendarMonth">January 2024</span>
+                <button class="btn btn-outline-primary" onclick="changeMonth(1)">Next →</button>
+            </div>
+            
+            <div class="calendar-grid mb-2">
+                <div class="text-center fw-bold">Sun</div>
+                <div class="text-center fw-bold">Mon</div>
+                <div class="text-center fw-bold">Tue</div>
+                <div class="text-center fw-bold">Wed</div>
+                <div class="text-center fw-bold">Thu</div>
+                <div class="text-center fw-bold">Fri</div>
+                <div class="text-center fw-bold">Sat</div>
+            </div>
+            
+            <div class="calendar-grid" id="calendarGrid"></div>
+            
+            <div class="mt-3">
+                <span class="badge bg-success me-2">Green = 100% Complete</span>
+                <span class="badge bg-warning me-2">Yellow = Partial (50-99%)</span>
+                <span class="badge bg-danger">Red = Missed (<50%)</span>
+            </div>
+        </div>
+        
+        <!-- ANALYTICS TAB -->
+        <div class="tab-pane fade" id="analytics" role="tabpanel">
+            <h4 class="mb-3">📈 Progress Analytics</h4>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6 class="text-muted">Avg Fasting Sugar (30d)</h6>
+                            <h2 id="avgSugar">--</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6 class="text-muted">Weight Change</h6>
+                            <h2 id="weightChange">--</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6 class="text-muted">Compliance Rate</h6>
+                            <h2 id="complianceRate">--</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <canvas id="mainChart" height="100"></canvas>
+        </div>
+        
+        <!-- SETTINGS TAB -->
+        <div class="tab-pane fade" id="settings" role="tabpanel">
+            <h4 class="mb-3">⚙️ Settings & Data Management</h4>
+            
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>🗓️ Journey Start Date</h5>
+                    <input type="date" class="form-control" id="startDate">
+                    <button class="btn btn-primary mt-2" onclick="setStartDate()">
+                        Set Start Date
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>💾 Backup & Restore</h5>
+                    <button class="btn btn-success me-2" onclick="exportData()">
+                        ⬇️ Download Backup (JSON)
+                    </button>
+                    <input type="file" id="importFile" accept=".json" style="display:none" 
+                           onchange="importData(event)">
+                    <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">
+                        ⬆️ Restore from Backup
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card mb-3 no-print">
+                <div class="card-body">
+                    <h5>🖨️ Print Report (for Doctor)</h5>
+                    <button class="btn btn-info" onclick="window.print()">
+                        Print 30-Day Summary
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card border-danger">
+                <div class="card-body">
+                    <h5 class="text-danger">⚠️ Danger Zone</h5>
+                    <button class="btn btn-danger" onclick="resetAllData()">
+                        🗑️ Delete All Data (Reset App)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ============================================================================
+// HABIT DEFINITIONS (Phase-Specific)
+// ============================================================================
+
+const HABIT_DEFINITIONS = {
+    core: [
+        {
+            id: 'no-white-poison',
+            name: '🍽️ No White Poisons',
+            description: 'No Rice, Sugar, Maida (Wheat)',
+            time: 'all-day',
+            emoji: '🍽️'
+        },
+        {
+            id: 'post-meal-walk',
+            name: '🚶 Post-Dinner Walk',
+            description: '10 minutes after dinner',
+            time: 'evening',
+            emoji: '🚶'
+        },
+        {
+            id: 'chair-squats',
+            name: '💺 Hourly Chair Squats',
+            description: '10 squats every hour (work hours)',
+            time: 'all-day',
+            emoji: '💺'
+        },
+        {
+            id: 'pranayam',
+            name: '🧘 Morning Pranayam',
+            description: '5 minutes breathing exercise',
+            time: 'morning',
+            emoji: '🧘'
+        }
+    ],
+    
+    phase1: [
+        {
+            id: 'medication-check',
+            name: '💊 Medication Timing',
+            description: 'Take meds as prescribed',
+            time: 'morning',
+            emoji: '💊',
+            phaseOnly: 1
+        }
+    ],
+    
+    phase2: [
+        {
+            id: 'vlcd-tracking',
+            name: '📝 Calorie Log',
+            description: 'Stay within 800-1000 kcal',
+            time: 'evening',
+            emoji: '📝',
+            phaseOnly: 2
+        }
+    ],
+    
+    phase3: [
+        {
+            id: 'protein-intake',
+            name: '🥚 Protein Target',
+            description: '100g protein daily',
+            time: 'evening',
+            emoji: '🥚',
+            phaseOnly: 3
+        },
+        {
+            id: 'strength-training',
+            name: '🏋️ Strength Training',
+            description: '20 min resistance exercises',
+            time: 'evening',
+            emoji: '🏋️',
+            phaseOnly: 3
+        }
+    ],
+    
+    phase4: [
+        {
+            id: 'weekly-weigh',
+            name: '⚖️ Weekly Weight Check',
+            description: 'Monitor weight stability',
+            time: 'morning',
+            emoji: '⚖️',
+            phaseOnly: 4
+        }
+    ]
+};
+
+// ============================================================================
+// STORAGE & DATA FUNCTIONS
+// ============================================================================
+
+const STORAGE_KEYS = {
+    START_DATE: 'atomicDiabetic_startDate',
+    LOGS: 'atomicDiabetic_logs',
+};
+
+function getAllLogs() {
+    const data = localStorage.getItem(STORAGE_KEYS.LOGS);
+    return data ? JSON.parse(data) : {};
+}
+
+function saveAllLogs(logs) {
+    localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(logs));
+}
+
+function getTodayDate() {
+    return new Date().toISOString().split('T')[0];
+}
+
+function getStartDate() {
+    const stored = localStorage.getItem(STORAGE_KEYS.START_DATE);
+    return stored || getTodayDate();
+}
+
+function getDaysSinceStart() {
+    const start = new Date(getStartDate());
+    const today = new Date();
+    const diffTime = Math.abs(today - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+}
+
+// ============================================================================
+// PHASE LOGIC
+// ============================================================================
+
+function getCurrentPhase(dayNumber) {
+    if (dayNumber <= 14) {
+        return {
+            phase: 1,
+            name: "Phase 1: The Safety Audit",
+            description: "Medication adjustment & removing white foods",
+            color: "#3498db"
+        };
+    } else if (dayNumber <= 84) {
+        return {
+            phase: 2,
+            name: "Phase 2: The Reset",
+            description: "800-1000 kcal VLCD Protocol",
+            color: "#e74c3c"
+        };
+    } else if (dayNumber <= 140) {
+        return {
+            phase: 3,
+            name: "Phase 3: The Build",
+            description: "Reintroducing foods + Muscle building",
+            color: "#f39c12"
+        };
+    } else {
+        return {
+            phase: 4,
+            name: "Phase 4: Maintenance",
+            description: "Preventing 'Skinny Fat' - Lifelong Protocol",
+            color: "#2ecc71"
+        };
+    }
+}
+
+function getHabitsForPhase(phaseNumber) {
+    let habits = [...HABIT_DEFINITIONS.core];
+    
+    switch(phaseNumber) {
+        case 1:
+            habits = habits.concat(HABIT_DEFINITIONS.phase1);
+            break;
+        case 2:
+            habits = habits.concat(HABIT_DEFINITIONS.phase2);
+            break;
+        case 3:
+            habits = habits.concat(HABIT_DEFINITIONS.phase3);
+            break;
+        case 4:
+            habits = habits.concat(HABIT_DEFINITIONS.phase4);
+            break;
+    }
+    
+    return habits;
+}
+
+// ============================================================================
+// HABIT RENDERING
+// ============================================================================
+
+function renderHabits() {
+    const dayNumber = getDaysSinceStart();
+    const phase = getCurrentPhase(dayNumber);
+    const habits = getHabitsForPhase(phase.phase);
+    const container = document.getElementById('habitsContainer');
+    const logs = getAllLogs();
+    const today = getTodayDate();
+    const todayLog = logs[today] || {};
+    const completedHabits = todayLog.habits || {};
+    
+    container.innerHTML = '';
+    
+    habits.forEach((habit) => {
+        const isCompleted = completedHabits[habit.id] || false;
+        
+        const habitDiv = document.createElement('div');
+        habitDiv.className = 'habit-item' + (isCompleted ? ' completed' : '');
+        
+        habitDiv.innerHTML = `
+            <input type="checkbox" 
+                   id="habit_${habit.id}" 
+                   ${isCompleted ? 'checked' : ''}
+                   onchange="saveHabits()">
+            <label for="habit_${habit.id}" class="ms-2">
+                <strong>${habit.name}</strong>
+                <span class="habit-time ${habit.time}">${habit.time.replace('-', ' ').toUpperCase()}</span>
+                ${habit.phaseOnly ? `<span class="phase-label phase-${habit.phaseOnly}">Phase ${habit.phaseOnly}</span>` : ''}
+                <br>
+                <small>${habit.description}</small>
+            </label>
+        `;
+        
+        container.appendChild(habitDiv);
+    });
+    
+    updateProgressCircle();
+    updateWhatsLeft();
+}
+
+// ============================================================================
+// PROGRESS CIRCLE
+// ============================================================================
+
+function updateProgressCircle() {
+    const dayNumber = getDaysSinceStart();
+    const phase = getCurrentPhase(dayNumber);
+    const habits = getHabitsForPhase(phase.phase);
+    const totalHabits = habits.length;
+    
+    const logs = getAllLogs();
+    const today = getTodayDate();
+    const todayLog = logs[today] || {};
+    const completedHabits = todayLog.habits || {};
+    
+    const completedCount = habits.filter(h => completedHabits[h.id]).length;
+    const percentage = (completedCount / totalHabits) * 100;
+    
+    const circle = document.getElementById('progressCircleFill');
+    const circumference = 2 * Math.PI * 65;
+    const offset = circumference - (percentage / 100) * circumference;
+    circle.style.strokeDashoffset = offset;
+    
+    document.getElementById('progressCircleText').textContent = `${completedCount}/${totalHabits}`;
+    
+    if (percentage === 100) {
+        circle.style.stroke = '#2ecc71';
+    } else if (percentage >= 50) {
+        circle.style.stroke = '#f39c12';
+    } else {
+        circle.style.stroke = '#e74c3c';
+    }
+}
+
+// ============================================================================
+// WHAT'S LEFT BOX
+// ============================================================================
+
+function updateWhatsLeft() {
+    const dayNumber = getDaysSinceStart();
+    const phase = getCurrentPhase(dayNumber);
+    const habits = getHabitsForPhase(phase.phase);
+    
+    const logs = getAllLogs();
+    const today = getTodayDate();
+    const todayLog = logs[today] || {};
+    const completedHabits = todayLog.habits || {};
+    
+    const remaining = habits.filter(h => !completedHabits[h.id]);
+    
+    const whatsLeftBox = document.getElementById('whatsLeftBox');
+    const successBox = document.getElementById('successBox');
+    const remainingList = document.getElementById('remainingHabitsList');
+    
+    if (remaining.length === 0) {
+        whatsLeftBox.style.display = 'none';
+        successBox.style.display = 'block';
+    } else {
+        whatsLeftBox.style.display = 'block';
+        successBox.style.display = 'none';
+        
+        remainingList.innerHTML = '';
+        remaining.forEach(habit => {
+            const li = document.createElement('li');
+            li.textContent = `${habit.emoji} ${habit.name}`;
+            remainingList.appendChild(li);
+        });
+    }
+}
+
+// ============================================================================
+// SAVE FUNCTIONS
+// ============================================================================
+
+function saveHabits() {
+    const logs = getAllLogs();
+    const today = getTodayDate();
+    const dayNumber = getDaysSinceStart();
+    const phase = getCurrentPhase(dayNumber);
+    const habits = getHabitsForPhase(phase.phase);
+    
+    if (!logs[today]) {
+        logs[today] = {};
+    }
+    
+    const habitStates = {};
+    habits.forEach(habit => {
+        habitStates[habit.id] = document.getElementById(`habit_${habit.id}`).checked;
+    });
+    
+    logs[today].habits = habitStates;
+    logs[today].timestamp = new Date().toISOString();
+    
+    saveAllLogs(logs);
+    updateProgressCircle();
+    updateWhatsLeft();
+    updateDashboard();
+}
+
+function saveTodayLog() {
+    const logs = getAllLogs();
+    const today = getTodayDate();
+    const dayNumber = getDaysSinceStart();
+    const phase = getCurrentPhase(dayNumber);
+    const habits = getHabitsForPhase(phase.phase);
+    
+    const fastingSugar = parseInt(document.getElementById('fastingSugar').value);
+    const postMealSugar = parseInt(document.getElementById('postMealSugar').value);
+    const weight = parseFloat(document.getElementById('weight').value);
+    
+    if (!fastingSugar || fastingSugar < 40 || fastingSugar > 600) {
+        alert('⚠️ Please enter a valid Fasting Sugar (40-600 mg/dL)');
+        return;
+    }
+    
+    const habitStates = {};
+    habits.forEach(habit => {
+        habitStates[habit.id] = document.getElementById(`habit_${habit.id}`).checked;
+    });
+    
+    logs[today] = {
+        habits: habitStates,
+        fastingSugar: fastingSugar,
+        postMealSugar: postMealSugar || null,
+        weight: weight || null,
+        timestamp: new Date().toISOString()
+    };
+    
+    saveAllLogs(logs);
+    alert('✅ Data saved successfully!');
+    updateDashboard();
+    renderChart();
+}
+
+// ============================================================================
+// STREAK & COMPLIANCE
+// ============================================================================
+
+function calculateStreak() {
+    const logs = getAllLogs();
+    const today = new Date();
+    let streak = 0;
+    
+    for (let i = 0; i < 180; i++) {
+        const checkDate = new Date(today);
+        checkDate.setDate(checkDate.getDate() - i);
+        const dateKey = checkDate.toISOString().split('T')[0];
+        const dayNumber = Math.ceil((checkDate - new Date(getStartDate())) / (1000 * 60 * 60 * 24));
+        const phase = getCurrentPhase(dayNumber);
+        const requiredHabits = getHabitsForPhase(phase.phase);
+        
+        const log = logs[dateKey];
+        
+        if (log && log.habits) {
+            const allComplete = requiredHabits.every(h => log.habits[h.id] === true);
+            if (allComplete) {
+                streak++;
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+    
+    return streak;
+}
+
+function calculateCompliance() {
+    const logs = getAllLogs();
+    const today = new Date();
+    let totalDays = 0;
+    let completeDays = 0;
+    
+    for (let i = 0; i < 30; i++) {
+        const checkDate = new Date(today);
+        checkDate.setDate(checkDate.getDate() - i);
+        const dateKey = checkDate.toISOString().split('T')[0];
+        const dayNumber = Math.ceil((checkDate - new Date(getStartDate())) / (1000 * 60 * 60 * 24));
+        const phase = getCurrentPhase(dayNumber);
+        const requiredHabits = getHabitsForPhase(phase.phase);
+        
+        const log = logs[dateKey];
+        if (log && log.habits) {
+            totalDays++;
+            const allComplete = requiredHabits.every(h => log.habits[h.id] === true);
+            if (allComplete) {
+                completeDays++;
+            }
+        }
+    }
+    
+    return totalDays > 0 ? Math.round((completeDays / totalDays) * 100) : 0;
+}
+
+// ============================================================================
+// COACH MESSAGE
+// ============================================================================
+
+function getCoachMessage() {
+    const logs = getAllLogs();
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayKey = yesterday.toISOString().split('T')[0];
+    
+    const yesterdayLog = logs[yesterdayKey];
+    const streak = calculateStreak();
+    const dayNumber = getDaysSinceStart();
+    const phase = getCurrentPhase(dayNumber);
+    
+    if (!yesterdayLog) {
+        return "🎯 Welcome! Let's start your transformation journey today.";
+    }
+    
+    const yesterdayHabits = getHabitsForPhase(phase.phase);
+    const allHabitsComplete = yesterdayLog.habits && yesterdayHabits.every(h => yesterdayLog.habits[h.id] === true);
+    const sugar = yesterdayLog.fastingSugar;
+    
+    if (allHabitsComplete && sugar < 140) {
+        return "🌟 Excellent work! Your liver is healing. You're building a new identity.";
+    }
+    
+    if (allHabitsComplete && sugar >= 140) {
+        return "💪 Great job on habits! Your body is adjusting. Stay consistent - results are coming.";
+    }
+    
+    if (!allHabitsComplete) {
+        return "⚠️ Yesterday was a miss. Remember: You don't rise to your goals, you fall to your systems. Reset today!";
+    }
+    
+    if (sugar > 200) {
+        return "🚨 Warning Zone. Check your water intake and stress levels today. You've got this.";
+    }
+    
+    if (streak >= 7) {
+        return `🔥 ${streak}-day streak! You are no longer trying to reverse diabetes. You ARE someone who controls their health.`;
+    }
+    
+    if (phase.phase === 2) {
+        return "💊 Phase 2: The Reset. This is the hardest part. Every meal you skip sugar, you're reversing years of damage.";
+    }
+    
+    return "✨ One day at a time. Small changes = Big results.";
+}
+
+// ============================================================================
+// DASHBOARD UPDATE
+// ============================================================================
+
+function updateDashboard() {
+    const dayNumber = getDaysSinceStart();
+    const phase = getCurrentPhase(dayNumber);
+    const streak = calculateStreak();
+    
+    document.getElementById('currentPhase').textContent = phase.name;
+    document.getElementById('dayCounter').textContent = `Day ${dayNumber} of 180`;
+    
+    const progress = Math.min((dayNumber / 180) * 100, 100);
+    const progressBar = document.getElementById('progressBar');
+    progressBar.style.width = progress + '%';
+    progressBar.style.backgroundColor = phase.color;
+    
+    document.getElementById('currentStreak').textContent = streak;
+    document.getElementById('coachMessage').textContent = getCoachMessage();
+    
+    document.getElementById('currentPhaseLabel').textContent = `Phase ${phase.phase}`;
+    document.getElementById('currentPhaseLabel').className = `phase-label phase-${phase.phase}`;
+    
+    renderHabits();
+    loadTodayData();
+    updateAnalytics();
+}
+
+function loadTodayData() {
+    const logs = getAllLogs();
+    const today = getTodayDate();
+    const todayLog = logs[today];
+    
+    if (todayLog) {
+        if (todayLog.fastingSugar) {
+            document.getElementById('fastingSugar').value = todayLog.fastingSugar;
+        }
+        if (todayLog.postMealSugar) {
+            document.getElementById('postMealSugar').value = todayLog.postMealSugar;
+        }
+        if (todayLog.weight) {
+            document.getElementById('weight').value = todayLog.weight;
+        }
+    }
+}
+
+function updateAnalytics() {
+    const logs = getAllLogs();
+    const today = new Date();
+    let sugarSum = 0;
+    let sugarCount = 0;
+    let firstWeight = null;
+    let lastWeight = null;
+    
+    for (let i = 0; i < 30; i++) {
+        const checkDate = new Date(today);
+        checkDate.setDate(checkDate.getDate() - i);
+        const dateKey = checkDate.toISOString().split('T')[0];
+        const log = logs[dateKey];
+        
+        if (log) {
+            if (log.fastingSugar) {
+                sugarSum += log.fastingSugar;
+                sugarCount++;
+            }
+            if (log.weight) {
+                if (!lastWeight) lastWeight = log.weight;
+                firstWeight = log.weight;
+            }
+        }
+    }
+    
+    document.getElementById('avgSugar').textContent = 
+        sugarCount > 0 ? Math.round(sugarSum / sugarCount) + ' mg/dL' : '--';
+    
+    if (firstWeight && lastWeight) {
+        const change = lastWeight - firstWeight;
+        document.getElementById('weightChange').textContent = 
+            (change > 0 ? '+' : '') + change.toFixed(1) + ' kg';
+    } else {
+        document.getElementById('weightChange').textContent = '--';
+    }
+    
+    document.getElementById('complianceRate').textContent = calculateCompliance() + '%';
+}
+
+// ============================================================================
+// CALENDAR
+// ============================================================================
+
+let currentCalendarMonth = new Date();
+
+function renderCalendar() {
+    const logs = getAllLogs();
+    const year = currentCalendarMonth.getFullYear();
+    const month = currentCalendarMonth.getMonth();
+    
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+    document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}`;
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
+    
+    for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        grid.appendChild(emptyCell);
+    }
+    
+    const today = getTodayDate();
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const cell = document.createElement('div');
+        cell.className = 'calendar-day';
+        cell.textContent = day;
+        
+        const log = logs[dateKey];
+        if (log && log.habits) {
+            const dateObj = new Date(dateKey);
+            const dayNumber = Math.ceil((dateObj - new Date(getStartDate())) / (1000 * 60 * 60 * 24));
+            const phase = getCurrentPhase(dayNumber);
+            const requiredHabits = getHabitsForPhase(phase.phase);
+            
+            const completedCount = requiredHabits.filter(h => log.habits[h.id] === true).length;
+            const totalCount = requiredHabits.length;
+            const percentage = (completedCount / totalCount) * 100;
+            
+            if (percentage === 100) {
+                cell.classList.add('success');
+            } else if (percentage >= 50) {
+                cell.classList.add('partial');
+            } else {
+                cell.classList.add('missed');
+            }
+        }
+        
+        if (dateKey === today) {
+            cell.classList.add('today');
+        }
+        
+        grid.appendChild(cell);
+    }
+}
+
+function changeMonth(delta) {
+    currentCalendarMonth.setMonth(currentCalendarMonth.getMonth() + delta);
+    renderCalendar();
+}
+
+// ============================================================================
+// CHART
+// ============================================================================
+
+let mainChart = null;
+
+function renderChart() {
+    const logs = getAllLogs();
+    const today = new Date();
+    const labels = [];
+    const complianceData = [];
+    const sugarData = [];
+    
+    for (let i = 29; i >= 0; i--) {
+        const checkDate = new Date(today);
+        checkDate.setDate(checkDate.getDate() - i);
+        const dateKey = checkDate.toISOString().split('T')[0];
+        const log = logs[dateKey];
+        
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        labels.push(`${monthNames[checkDate.getMonth()]} ${checkDate.getDate()}`);
+        
+        if (log) {
+            const dayNumber = Math.ceil((checkDate - new Date(getStartDate())) / (1000 * 60 * 60 * 24));
+            const phase = getCurrentPhase(dayNumber);
+            const requiredHabits = getHabitsForPhase(phase.phase);
+            
+            if (log.habits) {
+                const completedCount = requiredHabits.filter(h => log.habits[h.id] === true).length;
+                complianceData.push((completedCount / requiredHabits.length) * 100);
+            } else {
+                complianceData.push(null);
+            }
+            
+            sugarData.push(log.fastingSugar || null);
+        } else {
+            complianceData.push(null);
+            sugarData.push(null);
+        }
+    }
+    
+    if (mainChart) {
+        mainChart.destroy();
+    }
+    
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    mainChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Habit Compliance %',
+                    data: complianceData,
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    yAxisID: 'y',
+                    tension: 0.4
+                },
+                {
+                    label: 'Fasting Blood Sugar (mg/dL)',
+                    data: sugarData,
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    yAxisID: 'y1',
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Compliance %'
+                    },
+                    min: 0,
+                    max: 100
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Blood Sugar (mg/dL)'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                }
+            }
+        }
+    });
+}
+
+// ============================================================================
+// DIET SYSTEM FUNCTIONS
+// ============================================================================
+
+function showDietSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('.diet-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Show selected section
+    document.getElementById(sectionId).style.display = 'block';
+}
+
+function calculateCalories() {
+    const age = parseInt(document.getElementById('calcAge').value);
+    const gender = document.getElementById('calcGender').value;
+    const weight = parseFloat(document.getElementById('calcWeight').value);
+    const height = parseFloat(document.getElementById('calcHeight').value);
+    const activity = parseFloat(document.getElementById('calcActivity').value);
+    
+    if (!age || !weight || !height) {
+        alert('⚠️ Please fill all fields');
+        return;
+    }
+    
+    // Mifflin-St Jeor Equation
+    let bmr;
+    if (gender === 'male') {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+    } else {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+    }
+    
+    const maintenance = Math.round(bmr * activity);
+    const weightLoss = Math.round(maintenance * 0.8); // 20% deficit
+    
+    document.getElementById('maintenanceCal').textContent = maintenance;
+    document.getElementById('weightLossCal').textContent = weightLoss;
+    document.getElementById('calorieResult').style.display = 'block';
+}
+
+// ============================================================================
+// SETTINGS
+// ============================================================================
+
+function setStartDate() {
+    const dateInput = document.getElementById('startDate').value;
+    if (dateInput) {
+        localStorage.setItem(STORAGE_KEYS.START_DATE, dateInput);
+        alert('✅ Start date saved!');
+        updateDashboard();
+        renderCalendar();
+    } else {
+        alert('⚠️ Please select a date');
+    }
+}
+
+function exportData() {
+    const data = {
+        startDate: getStartDate(),
+        logs: getAllLogs(),
+        exportedAt: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `AtomicDiabetic-Backup-${getTodayDate()}.json`;
+    a.click();
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            
+            if (confirm('⚠️ This will overwrite all existing data. Continue?')) {
+                localStorage.setItem(STORAGE_KEYS.START_DATE, data.startDate);
+                saveAllLogs(data.logs);
+                alert('✅ Data restored successfully!');
+                location.reload();
+            }
+        } catch (error) {
+            alert('❌ Invalid backup file');
+        }
+    };
+    reader.readAsText(file);
+}
+
+function resetAllData() {
+    if (confirm('⚠️ This will DELETE ALL DATA permanently. Are you sure?')) {
+        if (confirm('🚨 LAST WARNING: This cannot be undone!')) {
+            localStorage.clear();
+            alert('✅ All data deleted. Reloading...');
+            location.reload();
+        }
+    }
+}
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('startDate').value = getStartDate();
+    
+    updateDashboard();
+    renderCalendar();
+    renderChart();
+    
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function() {
+            if (tab.id === 'calendar-tab') {
+                renderCalendar();
+            } else if (tab.id === 'analytics-tab') {
+                renderChart();
+            }
+        });
+    });
+    
+    console.log('💪 AtomicDiabetic initialized successfully!');
+});
+
+</script>
+
+</body>
+</html>
